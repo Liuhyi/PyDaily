@@ -55,7 +55,7 @@ class ArraySorter:
 
 
 if __name__ == '__main__':
-    number_count = 100_000_000
+    number_count = 10_000_000
     numbers = [random.randint(0, number_count) for _ in range(number_count)]
     sorter = ArraySorter(numbers)
     sorter.quicksort()
