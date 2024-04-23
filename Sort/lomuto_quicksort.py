@@ -1,13 +1,12 @@
 import random
-import sys
-from Sort.quicksort import Sorter
+from base import Sorter
 
 
 class ArraySorter(Sorter):
-    def __init__(self, numbers):
+    def __init__(self, array):
         # Create independent copies of the number array for different sorting methods.
-        super().__init__(numbers)
-        self.lomuto_array = numbers[:]
+        super().__init__(array)
+        self.lomuto_array = array[:]
 
     def _lomuto_quicksort(self, low, high):
         """Recursively sort the array using the lomuto quicksort algorithm."""
@@ -28,12 +27,10 @@ class ArraySorter(Sorter):
 
     @Sorter.measure_time
     def sort(self):
-        """Sort using the three-way quicksort algorithm."""
         self._lomuto_quicksort(0, len(self.lomuto_array) - 1)
 
 
 if __name__ == '__main__':
-    print(sys.path)
     number_count = 10_000
     numbers = [random.randint(0, number_count) for _ in range(number_count)]
     sorter = ArraySorter(numbers)

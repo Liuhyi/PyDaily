@@ -1,12 +1,12 @@
 import random
-from Sort.quicksort import Sorter
+from base import Sorter
 
 
 class ArraySorter(Sorter):
-    def __init__(self, numbers):
+    def __init__(self, array):
         # Create independent copies of the number array for different sorting methods.
-        super().__init__(numbers)
-        self.quick_sort_array = numbers[:]
+        super().__init__(array)
+        self.quick_sort_array = array[:]
 
     def _three_way_quicksort(self, low, high):
         """Recursively sort the array using the three-way quicksort algorithm."""
