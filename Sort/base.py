@@ -1,9 +1,10 @@
 import time
+import random
 
 
 class Sorter:
     def __init__(self, array):
-        self.builtin_sort_array = array
+        self.builtin_array = array
 
     @staticmethod
     def measure_time(func):
@@ -13,16 +14,25 @@ class Sorter:
             start_time = time.time()
             result = func(*args, **kwargs)
             end_time = time.time()
-            print(f"Function '{func.__name__}' executed in {end_time - start_time:.6f} seconds.")
+            print(f"Function '{func.__qualname__}' takes  {end_time - start_time:.6f} seconds.")
             return result
 
         return timed
 
     @measure_time
-    def builtin_sort(self):
-        """Sort using Python’s built-in sort method."""
-        self.builtin_sort_array.sort()
-
     def sort(self):
-        raise "Sort not implemented yet"
-        pass
+        if self.__class__.__name__ != "Sorter":
+            raise NotImplementedError("This method should be implemented in the derived class.")
+        self.builtin_array.sort()
+
+    @measure_time
+    def built_in_sort(self):
+        self.builtin_array.sort()
+
+    @staticmethod
+    def test(arraySorter, count=1_000_000):
+        nums = [random.randint(0, count) for _ in range(count)]
+        sorter = arraySorter(nums)
+        sorter.sort()
+        sorter.built_in_sort()
+        assert sorter.builtin_array == sorter.array, "The array is not sorted correctly."
