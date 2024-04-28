@@ -18,13 +18,11 @@ class ThreeWaySorter(Sorter):
 
         while i <= gt:
             if self.array[i] < pivot:
-                self.array[lt], self.array[i] = self.array[i], self.array[
-                    lt]
+                self.array[lt], self.array[i] = self.array[i], self.array[lt]
                 lt += 1
                 i += 1
             elif self.array[i] > pivot:
-                self.array[gt], self.array[i] = self.array[i], self.array[
-                    gt]
+                self.array[gt], self.array[i] = self.array[i], self.array[gt]
                 gt -= 1
             else:
                 i += 1
