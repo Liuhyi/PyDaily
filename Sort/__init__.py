@@ -6,6 +6,7 @@ from .merge_sort import MergeSorter
 from .heap_sort import HeapSorter
 from .counting_sort import CountingSorter
 from .bucket_sort import BucketSorter
+from .radix_sort import RadixSorter
 sorters = [
     Sorter,
     HoareSorter,
@@ -14,6 +15,7 @@ sorters = [
     MergeSorter,
     HeapSorter,
     CountingSorter,
-    BucketSorter
+    BucketSorter,
+    RadixSorter
 ]
 

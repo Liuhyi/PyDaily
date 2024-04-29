@@ -31,7 +31,7 @@ class Sorter:
 
     @staticmethod
     def test(arraySorter, count=1_000_000):
-        nums = [random.randint(0, count) for _ in range(count)]
+        nums = [random.randint(-count, count) for _ in range(count)]
         sorter = arraySorter(nums)
         sorter.sort()
         sorter.built_in_sort()
