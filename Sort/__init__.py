@@ -8,6 +8,9 @@ from .counting_sort import CountingSorter
 from .bucket_sort import BucketSorter
 from .radix_sort import RadixSorter
 from .shell_sort import ShellSorter
+from .select_sort import SelectSorter
+from .bubble_sort import BubbleSorter
+from .insertion_sort import InsertionSorter
 sorters = [
     Sorter,
     HoareSorter,
@@ -19,5 +22,8 @@ sorters = [
     BucketSorter,
     RadixSorter,
     ShellSorter,
+    SelectSorter,
+    BubbleSorter,
+    InsertionSorter
 ]
 

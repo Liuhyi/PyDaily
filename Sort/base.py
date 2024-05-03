@@ -4,7 +4,7 @@ import random
 
 class Sorter:
     def __init__(self, array):
-        self.builtin_array = array
+        self.builtin_array = array[:]
 
     @staticmethod
     def measure_time(func):
