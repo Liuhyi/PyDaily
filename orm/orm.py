@@ -1,6 +1,6 @@
 import sqlite3
 
-# 字段基类，代表数据库的字段
+
 class Field:
     def __init__(self, field_type, primary_key=False, default=None):
         self.field_type = field_type
@@ -18,7 +18,6 @@ class StringField(Field):
         super().__init__(f'VARCHAR({max_length})', False, default)
 
 
-# 元类负责将字段和表结构映射
 class ModelMeta(type):
     def __new__(cls, name, bases, class_dict):
         if name == 'BaseModel':
@@ -29,20 +28,21 @@ class ModelMeta(type):
         primary_key = None
         builtin_primary_key = False
 
-        # 收集字段和主键信息
         for key, value in class_dict.items():
             if isinstance(value, Field):
                 fields[key] = value
                 if value.primary_key:
                     primary_key = key
+        for key in fields.keys():
+            class_dict.pop(key)
 
-        # 如果没有用户设置的主键字段，设置 `id` 作为默认自增主键
         if primary_key is None:
-            fields['id'] = IntegerField(primary_key=True)
+            _fields = {'id': IntegerField(primary_key=True)}
+            _fields.update(fields)
+            fields = _fields
             primary_key = 'id'
             builtin_primary_key = True
 
-        # 更新类属性
         class_dict['_table_name'] = table_name
         class_dict['_fields'] = fields
         class_dict['_primary_key'] = primary_key
@@ -51,14 +51,14 @@ class ModelMeta(type):
         return super().__new__(cls, name, bases, class_dict)
 
 
-# 基础模型类，封装通用的 ORM 操作
 class BaseModel(metaclass=ModelMeta):
-    _connection = sqlite3.connect('database.db')
-    _cursor = _connection.cursor()
-
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
+
+    @classmethod
+    def _get_connection(cls):
+        return sqlite3.connect('database_id.db')
 
     @classmethod
     def create_table(cls):
@@ -67,7 +67,6 @@ class BaseModel(metaclass=ModelMeta):
             definition = f'{name} {field.field_type}'
             if field.primary_key:
                 definition += ' PRIMARY KEY'
-                # 仅在系统默认 `id` 为主键时添加自增属性
                 if cls._builtin_primary_key:
                     definition += ' AUTOINCREMENT'
             if field.default is not None:
@@ -75,81 +74,88 @@ class BaseModel(metaclass=ModelMeta):
             columns.append(definition)
 
         sql = f'CREATE TABLE IF NOT EXISTS {cls._table_name} ({", ".join(columns)})'
-        cls._cursor.execute(sql)
+        try:
+            with cls._get_connection() as conn:
+                conn.execute(sql)
+        except sqlite3.Error as e:
+            print(f"Error creating table {cls._table_name}: {e}")
 
     def save(self, overwrite=False):
-        # 构建列和占位符
-        columns = ', '.join([col for col in self._fields.keys() if col != 'id' or self._builtin_primary_key])
-        placeholders = ', '.join(['?' for _ in self._fields.keys() if _ != 'id' or self._builtin_primary_key])
-        values = [getattr(self, column, None) for column in self._fields.keys() if column != 'id' or self._builtin_primary_key]
+        cls = self.__class__
+        columns = ', '.join([col for col in cls._fields.keys()])
+        placeholders = ', '.join(['?' for _ in cls._fields.keys()])
+        values = [getattr(self, column, None) for column in cls._fields.keys()]
+        pk_value = getattr(self, cls._primary_key, None)
 
-        # 获取主键值
-        pk_value = getattr(self, self._primary_key, None)
-
-        if pk_value is not None:
-            # 查询记录是否已存在
-            self._cursor.execute(
-                f'SELECT 1 FROM {self._table_name} WHERE {self._primary_key} = ?', (pk_value,)
-            )
-            if self._cursor.fetchone():
-                if overwrite:
-                    # 执行更新操作
-                    update_clause = ', '.join([f'{col}=?' for col in self._fields.keys() if col != self._primary_key])
-                    sql = f'UPDATE {self._table_name} SET {update_clause} WHERE {self._primary_key} = ?'
-                    values.append(pk_value)
-                    self._cursor.execute(sql, values)
-                    self._connection.commit()
-                else:
-                    # 不覆盖，提示警告
-                    print(f"\033[91mWarning: Record with primary key {pk_value} already exists. Not overwriting.\033[0m")
-                return
-
-        # 插入新记录
-        sql = f'INSERT INTO {self._table_name} ({columns}) VALUES ({placeholders})'
-        self._cursor.execute(sql, values)
-        self._connection.commit()
+        try:
+            with cls._get_connection() as conn:
+                cursor = conn.cursor()
+                if pk_value is not None:
+                    cursor.execute(
+                        f'SELECT 1 FROM {cls._table_name} WHERE {cls._primary_key} = ?', (pk_value,)
+                    )
+                    if cursor.fetchone():
+                        if overwrite:
+                            update_clause = ', '.join([f'{col}=?' for col in cls._fields.keys()])
+                            sql = f'UPDATE {cls._table_name} SET {update_clause} WHERE {cls._primary_key} = ?'
+                            values.append(pk_value)
+                            cursor.execute(sql, values)
+                        else:
+                            print(
+                                f"\033[91mWarning: Record with primary key {pk_value} already exists. Not overwriting.\033[0m")
+                        return
+                sql = f'INSERT INTO {cls._table_name} ({columns}) VALUES ({placeholders})'
+                cursor.execute(sql, values)
+        except sqlite3.Error as e:
+            print(f"Error saving to {cls._table_name}: {e}")
 
     @classmethod
     def get(cls, **kwargs):
         condition = ' AND '.join([f'{k}=?' for k in kwargs.keys()])
         sql = f'SELECT * FROM {cls._table_name} WHERE {condition}'
-        cls._cursor.execute(sql, tuple(kwargs.values()))
-        return cls._cursor.fetchone()
+        try:
+            with cls._get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute(sql, tuple(kwargs.values()))
+                return cursor.fetchone()
+        except sqlite3.Error as e:
+            print(f"Error fetching from {cls._table_name}: {e}")
 
     @classmethod
     def all(cls):
         sql = f'SELECT * FROM {cls._table_name}'
-        cls._cursor.execute(sql)
-        return cls._cursor.fetchall()
+        try:
+            with cls._get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute(sql)
+                return cursor.fetchall()
+        except sqlite3.Error as e:
+            print(f"Error fetching all from {cls._table_name}: {e}")
 
     def delete(self):
         pk_value = getattr(self, self._primary_key)
         sql = f'DELETE FROM {self._table_name} WHERE {self._primary_key} = ?'
-        self._cursor.execute(sql, (pk_value,))
-        self._connection.commit()
+        try:
+            with self._get_connection() as conn:
+                conn.execute(sql, (pk_value,))
+        except sqlite3.Error as e:
+            print(f"Error deleting from {self._table_name}: {e}")
 
 
-# 示例模型类
 class User(BaseModel):
     table_name = 'users'
-    id = IntegerField(primary_key=True)  # 用户自定义主键 `id`
     name = StringField(max_length=100)
     age = IntegerField(default=0)
+    job = StringField(max_length=100, default='Programmer')
 
 
-# 测试代码
 if __name__ == '__main__':
     User.create_table()
 
-    # 插入一些用户
-    user1 = User(id=1, name='Alice', age=25)
-    user1.save(overwrite=True)
-
-    user2 = User(id=1, name='Bob', age=30)
-    user2.save(overwrite=False)  # 不覆盖
-
-    user3 = User(id=2, name='Charlie', age=35)
-    user3.save(overwrite=True)  # 覆盖
-
+    for i in range(23):
+        user = User(name=f'User-{i}', age=20 + i, job='Engineer')
+        user.save()
     users = User.all()
-    print(f'All Users: {users}')
+    for user in users:
+        print(user)
+    print(User.get(name='User-1'))
