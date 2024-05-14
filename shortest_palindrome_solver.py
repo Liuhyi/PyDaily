@@ -8,20 +8,21 @@ def random_mixed_string(length):
     result = ''.join(random.choices(combined_chars, k=length))
     return result
 
+
 class Solution:
-    def __init__(self,s):
+    def __init__(self, s):
         self.s = s
 
     def manacher(self):
         p = "^#" + "#".join(self.s) + "#$"
         m = len(p) // 2
-        span = [0] * (m+1)
+        span = [0] * (m + 1)
         center, mid, right = 0, 0, 0
         i = 2
         while i <= m:
             j = 2 * mid - i
-            span[i] = min(span[j],right - i) if i < right else 0
-            while p[i-span[i]-1] == p[i+span[i]+1]:
+            span[i] = min(span[j], right - i) if i < right else 0
+            while p[i - span[i] - 1] == p[i + span[i] + 1]:
                 span[i] += 1
             if i + span[i] > right:
                 mid = i
@@ -29,7 +30,7 @@ class Solution:
             if span[i] == i - 1:
                 center = i
             i += 1
-        return self.s[(center+span[center]) // 2:][::-1] + self.s
+        return self.s[(center + span[center]) // 2:][::-1] + self.s
 
     def kmp_next(self):
         rev = self.s[::-1]
@@ -45,7 +46,7 @@ class Solution:
                 next[i] = j
                 i += 1
             else:
-                j = next[j-1]
+                j = next[j - 1]
         return self.s[next[-1]:][::-1] + self.s
 
     def shortest_palindrome(self):
@@ -63,6 +64,3 @@ if __name__ == '__main__':
         print(s)
         sample = Solution(s)
         sample.shortest_palindrome()
-
-
-
