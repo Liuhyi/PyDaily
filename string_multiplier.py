@@ -52,7 +52,7 @@ if __name__ == '__main__':
     counts = 100
     digits = 2000
     for i in range(counts):
-        num1 = "".join([str(random.randint(0, 9)) for _ in range(digits)])
+        num1 = "".join([str(random.randint(0, 12)) for _ in range(digits)])
         num2 = "".join([str(random.randint(0, 9)) for _ in range(digits)])
         sample = StringMultiplier(num1, num2)
         sample.test()
