@@ -1,3 +1,5 @@
+import random
+
 class Solution:
     def __init__(self, s: str):
         self.s = s
@@ -21,10 +23,9 @@ class Solution:
 
 
 if __name__ == '__main__':
-    samples = ["abc", "aaa", "abba", "ababa", "abbaa", "ababaa", "ababba", "ababbba", "ababab", "abababa",
-                "abababba", "ababababa", "ababababba", "abababababa", "abababababba", "ababababababa",
-                "ababababababba", "abababababababa", "abababababababba", "ababababababababa", "ababababababababba",
-                "abababababababababa", "abababababababababba", "ababababababababababa",]
+    numbers = 100
+    length = 4
+    samples = ["".join(random.choices("abc", k=length)) for _ in range(numbers)]
     for sample in samples:
         s = Solution(sample)
-        print(s.countSubstrings())
+        print("{:<{}}".format(sample+":", length + 2), s.countSubstrings())
