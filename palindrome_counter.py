@@ -1,5 +1,6 @@
 import random
 
+
 class Solution:
     def __init__(self, s: str):
         self.s = s
@@ -28,4 +29,4 @@ if __name__ == '__main__':
     samples = ["".join(random.choices("abc", k=length)) for _ in range(numbers)]
     for sample in samples:
         s = Solution(sample)
-        print("{:<{}}".format(sample+":", length + 2), s.countSubstrings())
+        print("{:<{}}".format(sample + ":", length + 2), s.countSubstrings())
