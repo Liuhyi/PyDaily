@@ -30,4 +30,3 @@ if __name__ == '__main__':
     for sample in samples:
         s = Solution(sample)
         print("{:<{}}".format(sample + ":", length + 2), s.countSubstrings())
-
