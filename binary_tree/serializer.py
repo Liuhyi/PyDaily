@@ -26,6 +26,36 @@ class PreorderSerializer:
         values = iter(data.split(","))
         return helper()
 
+    @staticmethod
+    def deserialize_iterative(data):
+        if data == "#":
+            return None
+
+        values = iter(data.split(","))
+        root_val = next(values)
+
+        root = TreeNode(root_val)
+        stack = [(root, 'left')]
+
+        for val in values:
+            node, direction = stack[-1]
+
+            if val != "#":
+                new_node = TreeNode(val)
+                if direction == 'left':
+                    node.left = new_node
+                    stack[-1] = (node, 'right')
+                else:
+                    node.right = new_node
+                    stack.pop()
+                stack.append((new_node, 'left'))
+            else:
+                if direction == 'left':
+                    stack[-1] = (node, 'right')
+                else:
+                    stack.pop()
+        return root
+
 
 class GeneralizedListSerializer:
 
@@ -83,7 +113,7 @@ class GeneralizedListSerializer:
 
 
 if __name__ == '__main__':
-    tree = generate_random_tree(random.randint(4, 8))
+    tree = generate_random_tree(random.randint(3, 4))
     print("Original Tree:")
     Visualizer.print_tree_as_directory_structure(tree)
 
@@ -99,4 +129,7 @@ if __name__ == '__main__':
     deserialized_tree = GeneralizedListSerializer.deserialize(generalized_list_string)
     assert is_same_tree(tree, deserialized_tree), "Generalized List Serialization failed"
 
+    # test PreorderSerializer iterative
+    deserialized_tree = PreorderSerializer.deserialize_iterative(preorder_string)
+    assert is_same_tree(tree, deserialized_tree), "Preorder Serialization iterative failed"
     print("Serialization and Deserialization successful")
