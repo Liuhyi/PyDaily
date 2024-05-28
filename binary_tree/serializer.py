@@ -6,6 +6,18 @@ from binary_tree import generate_random_tree, is_same_tree
 
 class PreorderSerializer:
     @staticmethod
+    def validate_data(data):
+        nodes = data.split(',')
+        diff = 1
+        for node in nodes:
+            diff -= 1
+            if diff < 0:
+                return False
+            if node != '#':
+                diff += 2
+        return diff == 0
+
+    @staticmethod
     def serialize(root):
         if not root:
             return "#"
@@ -14,6 +26,9 @@ class PreorderSerializer:
 
     @staticmethod
     def deserialize(data):
+        if not PreorderSerializer.validate_data(data):
+            raise ValueError("Invalid data")
+
         def helper():
             val = next(values)
             if val == "#":
@@ -28,6 +43,8 @@ class PreorderSerializer:
 
     @staticmethod
     def deserialize_iterative(data):
+        if not PreorderSerializer.validate_data(data):
+            raise ValueError("Invalid data")
         if data == "#":
             return None
 
