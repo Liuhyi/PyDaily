@@ -40,3 +40,34 @@ class Traverser:
                 queue.append(node.right)
         return result
 
+    def level_order_with_levels(self):
+        if self.tree is None:
+            return []
+        queue = [(self.tree, 0)]
+        result = []
+        while queue:
+            node, level = queue.pop(0)
+            result.append((node.data, level))
+            if node.left:
+                queue.append((node.left, level + 1))
+            if node.right:
+                queue.append((node.right, level + 1))
+        return result
+
+    def level_order_with_list(self):
+        if self.tree is None:
+            return []
+        queue = [self.tree]
+        result = []
+        while queue:
+            level = []
+            for _ in range(len(queue)):
+                node = queue.pop(0)
+                level.append(node.data)
+                if node.left:
+                    queue.append(node.left)
+                if node.right:
+                    queue.append(node.right)
+            result.append(level)
+        return result
+
