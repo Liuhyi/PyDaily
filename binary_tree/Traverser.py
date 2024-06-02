@@ -71,3 +71,23 @@ class Traverser:
             result.append(level)
         return result
 
+    def zigzag_level_order(self):
+        if self.tree is None:
+            return []
+        queue = [self.tree]
+        result = []
+        reverse = False
+        while queue:
+            level = []
+            for _ in range(len(queue)):
+                node = queue.pop(0)
+                level.append(node.data)
+                if node.left:
+                    queue.append(node.left)
+                if node.right:
+                    queue.append(node.right)
+            if reverse:
+                level = level[::-1]
+            result.append(level)
+            reverse = not reverse
+        return result
