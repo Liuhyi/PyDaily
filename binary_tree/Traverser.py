@@ -91,3 +91,20 @@ class Traverser:
             result.append(level)
             reverse = not reverse
         return result
+
+    def vertical_order(self):
+        if self.tree is None:
+            return []
+        queue = [(self.tree, 0)]
+        result = {}
+        while queue:
+            node, hd = queue.pop(0)
+            if hd in result:
+                result[hd].append(node.data)
+            else:
+                result[hd] = [node.data]
+            if node.left:
+                queue.append((node.left, hd - 1))
+            if node.right:
+                queue.append((node.right, hd + 1))
+        return [result[hd] for hd in sorted(result)]
