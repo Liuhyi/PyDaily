@@ -108,3 +108,47 @@ class Traverser:
             if node.right:
                 queue.append((node.right, hd + 1))
         return [result[hd] for hd in sorted(result)]
+
+    def inorder_iterative(self):
+        if self.tree is None:
+            return []
+        stack = []
+        node = self.tree
+        result = []
+        while node or stack:
+            while node:
+                stack.append(node)
+                node = node.left
+            node = stack.pop()
+            result.append(node.data)
+            node = node.right
+        return result
+
+    def preorder_iterative(self):
+        if self.tree is None:
+            return []
+        stack = [self.tree]
+        result = []
+        while stack:
+            node = stack.pop()
+            result.append(node.data)
+            if node.right:
+                stack.append(node.right)
+            if node.left:
+                stack.append(node.left)
+        return result
+
+    def postorder_iterative(self):
+        if self.tree is None:
+            return []
+        stack = [self.tree]
+        result = []
+        while stack:
+            node = stack.pop()
+            result.append(node.data)
+            if node.left:
+                stack.append(node.left)
+            if node.right:
+                stack.append(node.right)
+        return result[::-1]
+
