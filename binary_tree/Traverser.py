@@ -138,7 +138,7 @@ class Traverser:
                 stack.append(node.left)
         return result
 
-    def postorder_iterative(self):
+    def postorder_iterative_with_reverse(self):
         if self.tree is None:
             return []
         stack = [self.tree]
@@ -152,3 +152,22 @@ class Traverser:
                 stack.append(node.right)
         return result[::-1]
 
+    def postorder_iterative_with_last_visited(self):
+        if self.tree is None:
+            return []
+        stack = []
+        current = self.tree
+        last_visited = None
+        result = []
+        while stack or current:
+            if current:
+                stack.append(current)
+                current = current.left
+            else:
+                peek_node = stack[-1]
+                if peek_node.right and last_visited != peek_node.right:
+                    current = peek_node.right
+                else:
+                    result.append(peek_node.value)
+                    last_visited = stack.pop()
+        return result
