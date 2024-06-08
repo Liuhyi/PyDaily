@@ -138,6 +138,21 @@ class Traverser:
                 stack.append(node.left)
         return result
 
+    def preorder_traversal_iterative_simulated(self):
+        if self.tree is None:
+            return []
+        cur = self.tree
+        stack = []
+        result = []
+        while cur or stack:
+            while cur:
+                result.append(cur.data)
+                stack.append(cur)
+                cur = cur.left
+            cur = stack.pop()
+            cur = cur.right
+        return result
+
     def postorder_iterative_with_reverse(self):
         if self.tree is None:
             return []
