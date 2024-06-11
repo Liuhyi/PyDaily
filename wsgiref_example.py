@@ -95,4 +95,3 @@ if __name__ == '__main__':
     httpd = make_server('', port, application)
     print(f"Serving on port {port}...")
     httpd.serve_forever()
-
