@@ -56,3 +56,4 @@ if __name__ == '__main__':
         num2 = "".join([str(random.randint(0, 9)) for _ in range(digits)])
         sample = StringMultiplier(num1, num2)
         sample.test()
+
