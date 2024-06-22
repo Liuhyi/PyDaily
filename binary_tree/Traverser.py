@@ -1,3 +1,6 @@
+from binary_tree import TreeNode
+
+
 class Traverser:
     def __init__(self, tree):
         self.tree = tree
@@ -185,4 +188,90 @@ class Traverser:
                 else:
                     result.append(peek_node.value)
                     last_visited = stack.pop()
+        return result
+
+    def morris_inorder(self):
+        if self.tree is None:
+            return []
+        current = self.tree
+        result = []
+        while current:
+            if current.left is None:
+                result.append(current.data)
+                current = current.right
+            else:
+                pre = current.left
+                while pre.right and pre.right != current:
+                    pre = pre.right
+                if pre.right is None:
+                    pre.right = current
+                    current = current.left
+                else:
+                    pre.right = None
+                    result.append(current.data)
+                    current = current.right
+        return result
+
+    def morris_preorder(self):
+        if self.tree is None:
+            return []
+        current = self.tree
+        result = []
+        while current:
+            if current.left is None:
+                result.append(current.data)
+                current = current.right
+            else:
+                pre = current.left
+                while pre.right and pre.right != current:
+                    pre = pre.right
+                if pre.right is None:
+                    result.append(current.data)
+                    pre.right = current
+                    current = current.left
+                else:
+                    pre.right = None
+                    current = current.right
+        return result
+
+    def morris_postorder(self):
+        if self.tree is None:
+            return []
+        dummy = TreeNode(0)
+        dummy.left = self.tree
+        current = dummy
+        result = []
+        while current:
+            if current.left is None:
+                current = current.right
+            else:
+                pre = current.left
+                while pre.right and pre.right != current:
+                    pre = pre.right
+                if pre.right is None:
+                    pre.right = current
+                    current = current.left
+                else:
+                    pre.right = None
+                    result += self._reverse(current.left)
+                    current = current.right
+        return result
+
+    def _reverse(self, node):
+        def reverse(node):
+            pre = None
+            while node:
+                next_node = node.right
+                node.right = pre
+                pre = node
+                node = next_node
+            return pre
+
+        new_head = reverse(node)
+        current = new_head
+        result = []
+        while current:
+            result.append(current.val)
+            current = current.right
+        reverse(new_head)
         return result
